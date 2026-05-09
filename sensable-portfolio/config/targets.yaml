@@ -1,0 +1,2 @@
+default:
+  weights: { stress: -0.5, focus: 0.5 }

@@ -1,0 +1,10 @@
+# Optional override layer; settings.py defaults win unless DB_URL etc. are set in .env
+min_decision_interval_s: 1800
+renderer_signals_hz: 1.0
+window_s: 300
+baseline_pre: 120
+window_lo: 60
+window_hi: 360
+feedback_alpha: 0.5
+evolver_cron_h: 24
+policy_snapshot_every: 50
