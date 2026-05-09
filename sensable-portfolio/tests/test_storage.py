@@ -27,8 +27,8 @@ async def test_round_trip_decision_and_reward():
 
     async with get_session(engine) as s:
         from sqlmodel import select
-        got = (await s.execute(select(Decision).where(Decision.id == "d1"))).scalars().first()
-        rew = (await s.execute(select(Reward).where(Reward.decision_id == "d1"))).scalars().first()
+        got = (await s.exec(select(Decision).where(Decision.id == "d1"))).first()
+        rew = (await s.exec(select(Reward).where(Reward.decision_id == "d1"))).first()
         assert got.arm_id == "breath_coach.v1"
         assert rew.reward == 0.4
 
@@ -44,7 +44,7 @@ async def test_snapshot_log_indexed_by_kind_ts():
 
     async with get_session(engine) as s:
         from sqlmodel import select
-        rows = (await s.execute(
+        rows = (await s.exec(
             select(SnapshotLog).where(SnapshotLog.kind == "focus").order_by(SnapshotLog.ts)
-        )).scalars().all()
+        )).all()
         assert [r.value for r in rows] == [0.0, 0.1, 0.2]
