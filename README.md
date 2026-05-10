@@ -41,15 +41,33 @@ integral with τ=60 s). `v`/`a` are the latent valence/arousal z-scores.
 
 ### Real headset
 
-You need the `mw75-csv` binary on `PATH` (or set `MW75_CSV_BIN=/path/to/mw75-csv`).
-Build it from the upstream `eugenehp/mw75` Rust crate.
+The `mw75-csv` binary is built from a small Rust wrapper crate that lives
+inside this repo at `neurable_connector/native/`. Build it once:
+
+```bash
+bash neurable_connector/native/build.sh
+```
+
+This installs `neurable_connector/native/bin/mw75-csv`. Python's `MW75Source`
+discovers it automatically — no `PATH` edits or env vars needed. First build
+takes a few minutes (cargo fetches ~290 transitive crates from github.com).
+
+Then run:
 
 ```bash
 python examples/focus_stress_pid.py
 ```
 
-Calibration takes ~3 minutes (90 s eyes open, 90 s eyes closed). After that the
-stream prints one line every 250 ms.
+Calibration takes ~3 minutes (90 s eyes open, 90 s eyes closed). After that
+the stream prints one line every 250 ms.
+
+**Requires:** Rust toolchain (https://rustup.rs), macOS or Linux with
+Bluetooth, and a paired MW75 headset.
+
+**License note:** the binary statically links the GPL-3.0 upstream
+`eugenehp/mw75` library, so `mw75-csv` is GPL-3.0. The Python wrapper stays
+MIT — it only spawns the binary as a subprocess. See
+`neurable_connector/native/README.md` for details.
 
 ## Output contract
 

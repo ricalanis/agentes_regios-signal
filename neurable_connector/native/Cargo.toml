@@ -1,0 +1,17 @@
+[package]
+name = "mw75-csv"
+version = "0.1.0"
+edition = "2021"
+description = "Headless MW75 CSV streamer: BLE activation + RFCOMM data stream -> CSV on stdout."
+license = "GPL-3.0"
+
+[[bin]]
+name = "mw75-csv"
+path = "src/main.rs"
+
+[dependencies]
+mw75 = { git = "https://github.com/eugenehp/mw75", features = ["rfcomm"] }
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"
