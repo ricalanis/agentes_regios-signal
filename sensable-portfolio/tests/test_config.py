@@ -17,6 +17,11 @@ def test_defaults_match_spec():
     assert s.evolver_cron_h == 24
     assert s.policy_snapshot_every == 50
     assert s.target_weights == {"stress": -0.5, "focus": 0.5}
+    assert s.ollama_enabled is False
+    assert s.ollama_base_url == "http://localhost:11434"
+    assert s.ollama_model == "kimi-k2:1t-cloud"
+    assert s.llm_provider == "stub"
+    assert s.anthropic_model == "claude-haiku-4-5-20251001"
 
 
 def test_env_override(monkeypatch):
