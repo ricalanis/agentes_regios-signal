@@ -18,6 +18,7 @@ from sensable_portfolio.arms.registry import ArmRegistry
 from sensable_portfolio.config import load_settings
 from sensable_portfolio.contracts import (
     AgentActionFrame, AgentInfo, Intervention, MoodFrame,
+    unix_seconds_to_ms,
 )
 from sensable_portfolio.graph.decision import DecisionGraph
 from sensable_portfolio.policy.linucb import LinUCBPolicy
@@ -85,7 +86,7 @@ def build_app(start_runtime: bool = True, db_url: str | None = None) -> FastAPI:
             last_decision_ts["t"] = float(event["ts"])
             arm = arm_registry.get(event["arm_id"])
             frame = AgentActionFrame(
-                ts=int(event["ts"] * 1000),
+                ts=unix_seconds_to_ms(event["ts"]),
                 decision_id=event["decision_id"],
                 agent=AgentInfo(id=arm.id, persona=arm.persona, model=arm.model,
                                 parent_id=arm.parent_id),
@@ -97,7 +98,7 @@ def build_app(start_runtime: bool = True, db_url: str | None = None) -> FastAPI:
         async def on_signal_sample(sample):
             mood = MoodFrame(
                 vector={k: float(getattr(sample, k)) for k in ALL_DIMS},
-                ts=int(sample.t * 1000),
+                ts=unix_seconds_to_ms(sample.t),
             )
             await bus.publish("signals", json.loads(mood.model_dump_json()))
 

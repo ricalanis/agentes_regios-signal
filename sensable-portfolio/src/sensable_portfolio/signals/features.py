@@ -2,12 +2,28 @@
 from __future__ import annotations
 
 import numpy as np
-from pidview import Snapshot
+from pidview import Snapshot, SignalView
 
 from sensable_portfolio.signals.view import CONTEXT_KINDS
 
 PER_KIND = 6   # present, differential, integral, last_3 history values
 FEATURE_DIM = len(CONTEXT_KINDS) * PER_KIND  # 6 * 6 = 36
+
+
+def _verify_pidview_snapshot_shape() -> None:
+    """Module-load contract check: Snapshot.history must be (N, 2) [t, x] rows."""
+    v = SignalView("__contract_check", history_seconds=10.0, integral_tau=1.0)
+    v.push(0.0, 1.0)
+    v.push(1.0, 2.0)
+    h = v.snapshot().history
+    if h.ndim != 2 or h.shape[1] != 2:
+        raise ImportError(
+            f"pidview.Snapshot.history shape drift: got {h.shape}, expected (N, 2). "
+            "sensable_portfolio.signals.features assumes columns [t, x]."
+        )
+
+
+_verify_pidview_snapshot_shape()
 
 
 def _last_3_values(snap: Snapshot) -> tuple[float, float, float]:

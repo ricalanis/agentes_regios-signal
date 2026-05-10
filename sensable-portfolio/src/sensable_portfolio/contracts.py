@@ -5,6 +5,15 @@ from typing import Literal, Protocol, runtime_checkable
 from pydantic import BaseModel, Field, ConfigDict
 
 
+def unix_seconds_to_ms(t: float) -> int:
+    """Boundary 3 helper: AffectSample/Intervention ts is unix seconds (float);
+    MoodFrame/AgentActionFrame ts is unix ms (int). One conversion site.
+
+    Matches the prior inline behavior (`int(x * 1000)` truncation),
+    so existing wire output is byte-identical."""
+    return int(t * 1000)
+
+
 @runtime_checkable
 class Recommendation(Protocol):
     schema_version: int
