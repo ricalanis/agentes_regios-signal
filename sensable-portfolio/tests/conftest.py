@@ -44,3 +44,30 @@ class FakeSource:
 @pytest.fixture
 def fake_source():
     return FakeSource(runtime_s=4.0, seed=2)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_settings_env(monkeypatch, tmp_path):
+    """Tests must not be polluted by the project `.env`.
+
+    pydantic-settings resolves `env_file=".env"` relative to the current
+    working directory at `Settings()` instantiation. We chdir to a tmp
+    dir (no .env present) and clear every sensable-portfolio env var so
+    each test sees pristine defaults regardless of the developer's
+    local config."""
+    for k in (
+        "LLM_PROVIDER",
+        "OLLAMA_ENABLED", "OLLAMA_API_KEY", "OLLAMA_BASE_URL", "OLLAMA_MODEL",
+        "ANTHROPIC_API_KEY", "ANTHROPIC_MODEL",
+        "OPENAI_API_KEY", "LANGSMITH_API_KEY",
+        "RENDERER_ENABLED", "RENDERER_WS_URL", "RENDERER_SIGNALS_HZ",
+        "DB_URL",
+        "DEBUG_SSE_ENABLED",
+        "PORT",
+    ):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.chdir(tmp_path)  # cwd has no .env
+    from sensable_portfolio.config import load_settings
+    load_settings.cache_clear()
+    yield
+    load_settings.cache_clear()

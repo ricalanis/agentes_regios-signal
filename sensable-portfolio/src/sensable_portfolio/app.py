@@ -107,6 +107,7 @@ def build_app(start_runtime: bool = True, db_url: str | None = None) -> FastAPI:
             llm_factory = ollama_llm_factory(
                 default_model=settings.ollama_model,
                 base_url=settings.ollama_base_url,
+                api_key=settings.ollama_api_key,
             )
         elif settings.llm_provider == "anthropic":
             from sensable_portfolio.llm.factories import anthropic_llm_factory

@@ -22,6 +22,21 @@ class Recommendation(Protocol):
     ts: float
 
 
+class InterventionDraft(BaseModel):
+    """Fields an LLM is expected to fill via `with_structured_output(...)`.
+
+    Splitting these from server-owned identifiers (decision_id, arm_id, ts)
+    means the LLM doesn't have to fabricate IDs and timestamps — those get
+    stamped by the arm factory as it promotes a Draft to a full Intervention.
+    Wire output is unchanged: only `Intervention` ever crosses a boundary."""
+    action_type: str
+    title: str
+    body: str
+    duration_s: float
+    intensity: Literal["low", "med", "high"]
+    rationale: str
+
+
 class Intervention(BaseModel):
     schema_version: Literal[1] = 1
     decision_id: str

@@ -44,10 +44,14 @@ class Settings(BaseSettings):
     # LLM provider selection
     llm_provider: Literal["stub", "ollama", "anthropic"] = "stub"
 
-    # Ollama (local OR Ollama Cloud, e.g. kimi-k2:1t-cloud)
+    # Ollama: local daemon OR direct Cloud API (set OLLAMA_API_KEY for direct).
+    # Direct Cloud API:  base_url="https://ollama.com",        model="kimi-k2.6" (bare).
+    # Local daemon path: base_url="http://localhost:11434",    model="kimi-k2:1t-cloud"
+    # (requires `ollama signin` and a daemon recent enough to support :cloud tags).
     ollama_enabled: bool = False
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "kimi-k2:1t-cloud"
+    ollama_api_key: str | None = None
 
     # Anthropic (Claude)
     anthropic_model: str = "claude-haiku-4-5-20251001"

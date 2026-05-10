@@ -50,6 +50,54 @@ def test_ollama_factory_honors_explicit_model_name(monkeypatch):
     assert captured["model"] == "qwen2.5:14b-instruct"
 
 
+def test_ollama_factory_attaches_bearer_header_when_api_key_set(monkeypatch):
+    """Direct Cloud API mode: api_key should attach Authorization: Bearer
+    via client_kwargs.headers so requests reach https://ollama.com auth-ed."""
+    captured = {}
+
+    class FakeChat:
+        def __init__(self, model, base_url, client_kwargs=None):
+            captured["model"] = model
+            captured["base_url"] = base_url
+            captured["client_kwargs"] = client_kwargs
+
+        def with_structured_output(self, _schema, method=None):
+            return self
+
+    import langchain_ollama
+    monkeypatch.setattr(langchain_ollama, "ChatOllama", FakeChat, raising=True)
+
+    from sensable_portfolio.llm.factories import ollama_llm_factory
+
+    f = ollama_llm_factory("kimi-k2.6", base_url="https://ollama.com", api_key="abc.xyz")
+    f("default")
+    assert captured["base_url"] == "https://ollama.com"
+    assert captured["client_kwargs"] == {"headers": {"Authorization": "Bearer abc.xyz"}}
+
+
+def test_ollama_factory_omits_client_kwargs_when_no_api_key(monkeypatch):
+    """Local-daemon mode: no api_key → don't pass client_kwargs at all,
+    preserving prior call shape for downstream tests + behavior."""
+    captured = {}
+
+    class FakeChat:
+        def __init__(self, model, base_url):
+            # If client_kwargs were forwarded here, this signature would mismatch
+            # and the test would fail with TypeError. That's the contract.
+            captured["model"] = model
+
+        def with_structured_output(self, _schema, method=None):
+            return self
+
+    import langchain_ollama
+    monkeypatch.setattr(langchain_ollama, "ChatOllama", FakeChat, raising=True)
+
+    from sensable_portfolio.llm.factories import ollama_llm_factory
+    f = ollama_llm_factory("kimi-k2:1t-cloud")  # no api_key
+    f("default")
+    assert captured["model"] == "kimi-k2:1t-cloud"
+
+
 def test_anthropic_factory_uses_default_for_sentinels(monkeypatch):
     captured = {}
 
